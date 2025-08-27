@@ -28,11 +28,15 @@ First I select packet 38, then looking at the sections I see Extensible Markup L
 
 **5. What is the arrival date of the packet? (Answer format: Month/Day/Year)**
 
+In the same packet, I expanded the `frame` tab and saw the answer there.
 
+<img width="804" height="138" alt="Screenshot 2025-08-26 133341" src="https://github.com/user-attachments/assets/c4e1374a-18b0-4574-9799-7aa6d7b8f911" />
 
+**6.What is the TTL value?**
 
+I expanded the `internet protocal` tab and found the answer below.
 
-
+<img width="868" height="259" alt="Screenshot 2025-08-26 133548" src="https://github.com/user-attachments/assets/9ca95050-84f1-4a00-9317-a0acf3521905" />
 
 
 
