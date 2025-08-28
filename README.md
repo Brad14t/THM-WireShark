@@ -1,5 +1,6 @@
 # THM-WireShark & Nmap
-This will be my process with the WireShark module in Try Hack me.
+
+This will be my process with the Try Hack Me `WireShark: The Basics, WireShark: Packet Operations, and WireShark: Traffic Analysis`
 
 
 **1. Read the "capture file comments". What is the flag?**
