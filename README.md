@@ -1,4 +1,4 @@
-# THM-WireShark
+# THM-WireShark & Nmap
 This will be my process with the WireShark module in Try Hack me.
 
 
@@ -194,14 +194,103 @@ Then find rad.msn.com and go to the right and see the quantity.
 
 <img width="67" height="66" alt="Screenshot 2025-08-27 153753" src="https://github.com/user-attachments/assets/4f3cde09-b215-4fa3-a71c-e2386a734e18" />
 
+**24. What is the number of IP packets?**
 
+I used the `ip` command and saw the number of displayed packets.
 
+<img width="899" height="729" alt="Screenshot 2025-08-28 085005" src="https://github.com/user-attachments/assets/4b742578-6661-40f5-a509-802fa2ec8e88" />
 
+**25. What is the number of packets with a "TTL value less than 10"?**
 
+I used `ip.ttl < 10`
 
+<img width="810" height="726" alt="Screenshot 2025-08-28 085205" src="https://github.com/user-attachments/assets/012c655c-99ab-4d1f-a470-2fd49984893c" />
 
+**26. What is the number of packets which uses "TCP port 4444"?**
 
+`tcp.port == 4444`
 
+<img width="816" height="728" alt="Screenshot 2025-08-28 085334" src="https://github.com/user-attachments/assets/fce88e39-c13c-40d5-bef4-1d75daa3a55a" />
+
+**27. What is the number of "HTTP GET" requests sent to port "80"?**
+
+`http.request.method == "GET" && tcp.port == 80`
+
+<img width="821" height="736" alt="Screenshot 2025-08-28 085946" src="https://github.com/user-attachments/assets/523229ea-94ff-43b9-8778-6989ae23f899" />
+
+**28. What is the number of "type A DNS Queries"?**
+
+First I start by trying to find a query, I select the analyse tab then Display filter expression.
+
+<img width="346" height="148" alt="Screenshot 2025-08-28 090551" src="https://github.com/user-attachments/assets/6a3541f0-f340-459d-9d93-e0b6ef616a44" />
+
+I searched dns, and scrolled through till I found `dns.qry.type` and this allows me to select only type a.
+
+<img width="825" height="846" alt="Screenshot 2025-08-28 090643" src="https://github.com/user-attachments/assets/2bba545d-288b-4194-8848-f1ab0d64a888" />
+
+This wont give the correct answer, I am needing responses only. So I go back and make another query, by searching dns and scrolling through the options.
+
+I found the one I beleive is correct, it is `dns.flag.response`
+
+<img width="823" height="831" alt="Screenshot 2025-08-28 091159" src="https://github.com/user-attachments/assets/04433b3d-5dac-4ca3-8cef-abd1b9c91fc3" />
+
+Add both together to a full query of `dns.qry.type ==1 && dns.flag.response == 1`
+
+<img width="1505" height="779" alt="Screenshot 2025-08-28 091419" src="https://github.com/user-attachments/assets/c9588386-1cee-4b4a-b3e1-d499b18c40ff" />
+
+**29. Find all Microsoft IIS servers. What is the number of packets that did not originate from "port 80"?**
+
+First I want to find all packets with Microsoft
+
+`http.server contains "Microsoft"`, now that I have all the packets with the Microsoft server, I need a query to find the packets that dont originate from port 80.
+
+full command I used `http.server contains "Microsoft" && tcp.srcport != 80`
+
+<img width="1516" height="768" alt="Screenshot 2025-08-28 094432" src="https://github.com/user-attachments/assets/174d83e8-c0d2-4247-9510-19c8f946a540" />
+
+**30. Find all Microsoft IIS servers. What is the number of packets that have "version 7.5"?**
+
+After looking at the packets and testing queries I landed on this one.
+
+`http.server contains "Microsoft" && http.server matches "7.5"`
+
+<img width="1517" height="780" alt="Screenshot 2025-08-28 095349" src="https://github.com/user-attachments/assets/cfde55bc-0428-4a1f-9370-ef545fad8123" />
+
+**31. What is the total number of packets that use ports 3333, 4444 or 9999?**
+
+`tcp.port in {3333 4444 9999}`
+
+<img width="1512" height="780" alt="Screenshot 2025-08-28 095650" src="https://github.com/user-attachments/assets/cb90370e-10dd-4251-bc6e-d887ae77cb44" />
+
+**32. What is the number of packets with "even TTL numbers"?**
+
+First thing is to translate the packets into strings, this can be done by `string(ip.ttl)`
+
+Then I want the packets to match only even numbers by adding `matches "[02468]$"` this matches only the regex numbers of even numbers, the $ is the anchor saying it needs to end in that even number range.
+
+<img width="1495" height="784" alt="Screenshot 2025-08-28 100511" src="https://github.com/user-attachments/assets/70262306-4749-48ed-bb42-559b57b0d4c0" />
+
+**33. Change the profile to "Checksum Control". What is the number of "Bad TCP Checksum" packets?**
+
+First I select edit, then configuration profiles, then select checksum control.
+
+<img width="366" height="802" alt="Screenshot 2025-08-28 100715" src="https://github.com/user-attachments/assets/f6d305c1-ff63-42dd-b533-3659a0827e3c" />
+
+<img width="861" height="624" alt="Screenshot 2025-08-28 100731" src="https://github.com/user-attachments/assets/97c12604-3f68-4bfe-af99-d04dab3b80fa" />
+
+Then I craft a query by looking up `dns.checksum`
+
+<img width="819" height="782" alt="Screenshot 2025-08-28 100939" src="https://github.com/user-attachments/assets/78bb2ec1-175b-4e89-b3e8-8f0b6e4212df" />
+
+<img width="1381" height="778" alt="Screenshot 2025-08-28 101035" src="https://github.com/user-attachments/assets/ce7d4a63-e830-4a63-ab36-45c5f5f971c5" />
+
+**34. Use the existing filtering button to filter the traffic. What is the number of displayed packets?**
+
+Using the same profile config, use the existing filter gives me the answer.
+
+<img width="963" height="394" alt="Screenshot 2025-08-28 101211" src="https://github.com/user-attachments/assets/47647a99-1f59-4a14-b28f-c06554594c1e" />
+
+<img width="1265" height="470" alt="Screenshot 2025-08-28 101256" src="https://github.com/user-attachments/assets/71138334-5237-4e5d-bbca-6e62e9a521b0" />
 
 
 
