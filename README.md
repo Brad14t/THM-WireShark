@@ -293,14 +293,22 @@ Using the same profile config, use the existing filter gives me the answer.
 
 <img width="1265" height="470" alt="Screenshot 2025-08-28 101256" src="https://github.com/user-attachments/assets/71138334-5237-4e5d-bbca-6e62e9a521b0" />
 
+# NMAP Notes
 
+**Most common nmap scans:** `TCP connect scans, SYN scans, UDP scans`
 
+**Below are the base filters to probe Nmap scan behaviour on the network:**
 
+Global search - `tcp` `udp`
 
+SYN Flag only: 
 
+`tcp.flags == 2` - will only match packets where only the SYN flag is set and no other flags are set. This is typical of the initial SYN packet sent by a client to establish a connection. (SYN flag is the ONLY flag)
 
+`tcp.flags.syn == 1` -  will match any packet where the SYN flag is set, regardless of the state of other flags (e.g., it would match a SYN-ACK packet where both SYN and ACK flags are set).
 
+`tcp.flags == 16` - ACK flag is the only flag
 
-
+`tcp.flags.ack == 1` - will match any packet with the ACK flag set.
 
 
