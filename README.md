@@ -573,7 +573,9 @@ Then I copied the User agent value and decoded from Base 64.
 
 I can see after it is decoded I can see the wget to get the file lh.sh from the provided IP.
 
+**58. Locate the "Log4j" attack starting phase and decode the base64 command. What is the IP address contacted by the adversary? (Enter the address in defanged format and exclude "{}".)**
 
+Answer provided in the last answer.
 
 
 
