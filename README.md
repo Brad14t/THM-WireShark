@@ -447,6 +447,138 @@ Same command as last time, just change the client. `unlencoded-form matches "cli
 
 <img width="533" height="216" alt="Screenshot 2025-08-28 154121" src="https://github.com/user-attachments/assets/858ba331-fb46-439c-8cdc-d41abac7ce30" />
 
+**44. What is the MAC address of the host "Galaxy A30"?**
+
+First command I tried was `dhcp.option.hostname contains "Galaxy A30"` but nothing came up, I changed my command to be less exact `dhcp.option.hostname contains "A30"`
+
+That second command was succesful
+
+<img width="845" height="715" alt="Screenshot 2025-09-02 120138" src="https://github.com/user-attachments/assets/279483ba-65ff-468a-ac88-69f7590baaa3" />
+
+**45. How many NetBIOS registration requests does the "LIVALJM" workstation have?**
+
+First I need to craft a search for NBNS registration request filter.
+
+<img width="1265" height="798" alt="Screenshot 2025-09-02 124337" src="https://github.com/user-attachments/assets/186bcbb6-0b0a-4620-b04b-7bb3395bdf38" />
+
+Then I need it to match the name given.
+
+<img width="1262" height="831" alt="Screenshot 2025-09-02 124432" src="https://github.com/user-attachments/assets/d24c3607-d29f-4e84-bbb3-42b53cf80102" />
+
+Then I can see the total at the bottom.
+
+<img width="1629" height="789" alt="Screenshot 2025-09-02 124541" src="https://github.com/user-attachments/assets/a0385310-b8bf-43a5-ab3c-b6849a901cf0" />
+
+**46. Which host requested the IP address "172.16.13.85"?**
+
+First I need just the request flags so I will start with `dhcp.option.dhcp == 3`
+
+Then I go through the filters to find `dhcp.option.request_ip_address == 172.16.13.85`
+
+Final full command I used was `dhcp.option.dhcp == 3 && dhcp.option.request_ip_address == 172.16.13.85`
+
+Then double clicking info to expand to the host.
+
+<img width="1243" height="838" alt="Screenshot 2025-09-02 124857" src="https://github.com/user-attachments/assets/b09bc54b-776c-4f5b-b0c4-6dac748ae353" />
+
+<img width="635" height="300" alt="Screenshot 2025-09-02 125202" src="https://github.com/user-attachments/assets/39ada696-f80b-4335-88be-13f46b09cdff" />
+
+**47. What is the IP address of the user "u5"? (Enter the address in defanged format.)**
+
+First command I used was `kerberos.CNameString contains "u5"` then I double clicked the firsat result and looking into the kerberos details. Found the u5 user and the address associated.
+
+<img width="889" height="390" alt="Screenshot 2025-09-02 125515" src="https://github.com/user-attachments/assets/5c4445a5-8ae8-45c4-bdc2-6e565ae69004" />
+
+<img width="1130" height="323" alt="Screenshot 2025-09-02 125507" src="https://github.com/user-attachments/assets/5df415cd-08d0-4304-8f50-0f9d4b2bb1b6" />
+
+**48. What is the hostname of the available host in the Kerberos packets?** 
+
+I can find this info on the same packet. Just needing to add $ to the end since that indicates hostnames.
+
+<img width="515" height="129" alt="Screenshot 2025-09-02 130038" src="https://github.com/user-attachments/assets/9eff4d67-4f9f-49eb-b540-a30b4268c50d" />
+
+**49. Investigate the anomalous packets. Which protocol is used in ICMP tunnelling?**
+
+The answer to this is one of many protocols used during ICMP tunnelling. I guessed `SSH` since its a popular option.
+
+**50. Investigate the anomalous packets. What is the suspicious main domain address that receives anomalous DNS queries? (Enter the address in defanged format.)**
+
+First I want to look at lond DNS records so I used this command `dns.qry.name.len > 50 and !mdns` I am searching for dns queries that are long entries, which is malicous. Then the !mdns is the multicast local, I am wanting all data other than the local info.
+
+This provided with to many entiries, I need filter more so since I a looking for a domain I can search for anything with ".com"
+
+My full query is `dns.qry.name.len > 50 and !mdns and dns.qry.name contains .com`
+
+Then clicking on one of the entries, you can see the domain to the side.
+
+<img width="1037" height="210" alt="Screenshot 2025-09-02 133719" src="https://github.com/user-attachments/assets/a6c0d726-6a18-4c1a-b9a5-d00339c8600e" />
+
+<img width="1002" height="290" alt="Screenshot 2025-09-02 133710" src="https://github.com/user-attachments/assets/0e698b4f-729a-4f15-84ff-3776df4b123e" />
+
+**51. How many incorrect login attempts are there?**
+
+To get all failed login attempts I need response code of 430 & 530.
+
+`ftp.response.code == 430 and ftp.response.code == 530`
+
+<img width="865" height="713" alt="Screenshot 2025-09-02 141149" src="https://github.com/user-attachments/assets/337ee6ec-e385-4fbc-9037-e58df99e609d" />
+
+**52. What is the size of the file accessed by the "ftp" account?**
+
+This is a user requesting access from the ftp account. So for the command I can use `ftp.request.arg == "ftp"`
+
+Now I have 2 packets, 1 as a PASS and the other is USER ftp, next I will follow the stream of the USER packet.
+
+<img width="773" height="159" alt="Screenshot 2025-09-02 141933" src="https://github.com/user-attachments/assets/7eabd57b-7960-4490-823d-9bfba734dbdd" />
+
+<img width="1008" height="629" alt="Screenshot 2025-09-02 141954" src="https://github.com/user-attachments/assets/e59ec869-50c3-4f43-8e7f-642085704745" />
+
+Scrolling through the TCP stream I can find the answer.
+
+<img width="229" height="98" alt="Screenshot 2025-09-02 142033" src="https://github.com/user-attachments/assets/a3199362-a2ed-450c-ba55-3944660be2eb" />
+
+**53. The adversary uploaded a document to the FTP server. What is the filename?**
+
+Answer is provided in the same place as last question.
+
+**54. The adversary tried to assign special flags to change the executing permissions of the uploaded file. What is the command used by the adversary?**
+
+To find this answer I sorted the packets by latest, then right before the QUIT packet I inspected it and saw they used chmod 777.
+
+<img width="759" height="392" alt="Screenshot 2025-09-02 142828" src="https://github.com/user-attachments/assets/72ed24fe-004c-4a2b-a4d5-9fd637860b36" />
+
+**55. Investigate the user agents. What is the number of anomalous  "user-agent" types?**
+
+First the command I used to see user agents is `http.user_agent` then I added user agent as a column.
+
+<img width="1062" height="735" alt="Screenshot 2025-09-02 144144" src="https://github.com/user-attachments/assets/bc3e7076-329f-42e8-b447-a5f7b39ac979" />
+
+Then I went through the user agent fields and found 6 different entries.
+
+**56. What is the packet number with a subtle spelling difference in the user agent field?**
+
+For this I just looked at the entries or user agent.
+
+<img width="167" height="93" alt="Screenshot 2025-09-02 145026" src="https://github.com/user-attachments/assets/b722eae1-2974-4b36-a016-58e02d9c40b6" />
+
+**57. Locate the "Log4j" attack starting phase. What is the packet number?**
+
+Command I used was `(http.user_agent contains "$") or (http.user_agent contains "==")`
+
+Then I copied the User agent value and decoded from Base 64.
+
+<img width="1448" height="689" alt="Screenshot 2025-09-02 150309" src="https://github.com/user-attachments/assets/b33cd987-1401-44e1-b7e6-5b4920818564" />
+
+<img width="954" height="660" alt="Screenshot 2025-09-02 150316" src="https://github.com/user-attachments/assets/7eacab10-a62e-4e6f-9722-e45f56482c20" />
+
+I can see after it is decoded I can see the wget to get the file lh.sh from the provided IP.
+
+
+
+
+
+
+
 
 
 
