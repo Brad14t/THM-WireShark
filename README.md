@@ -293,7 +293,7 @@ Using the same profile config, use the existing filter gives me the answer.
 
 <img width="1265" height="470" alt="Screenshot 2025-08-28 101256" src="https://github.com/user-attachments/assets/71138334-5237-4e5d-bbca-6e62e9a521b0" />
 
-# NMAP Notes
+# NMAP Notes & Exersises 
 
 **Most common nmap scans:** `TCP connect scans, SYN scans, UDP scans`
 
@@ -301,7 +301,7 @@ Using the same profile config, use the existing filter gives me the answer.
 
 Global search - `tcp` `udp`
 
-SYN Flag only: 
+**TCP Flags**
 
 `tcp.flags == 2` - will only match packets where only the SYN flag is set and no other flags are set. This is typical of the initial SYN packet sent by a client to establish a connection. (SYN flag is the ONLY flag)
 
@@ -310,5 +310,148 @@ SYN Flag only:
 `tcp.flags == 16` - ACK flag is the only flag
 
 `tcp.flags.ack == 1` - will match any packet with the ACK flag set.
+
+`tcp.flags == 18` - Filters for packets that contain SYN and ACK flags.
+
+`(tcp.flags.syn == 1) and (tcp.flags.ack == 1)` - Second step of the 3 way handshake, filters for packets with ONLY SYN and ACK flags.
+
+`tcp.flags.reset == 1` - Any TCP packet where the RST flag is set to 1. This can include packets with other flags set, such as a RST-ACK packet.
+
+`tcp.flags == 4` - Only TCP packets where only the RST flag is set and all other flags are 0.
+
+`tcp.flags == 20` - Only packets with just the RST and ACK flags set
+
+`(tcp.flags.reset == 1) and (tcp.flags.ack == 1)` - All packets with both the RST and ACK flags set
+
+`tcp.flags.fin == 1` - All packets with the FIN flag set (e.g., FIN and FIN-ACK)
+
+`tcp.flags == 1` - Only packets with just the FIN flag set
+
+**TCP Connect Scan**
+
+Command to test connection and see if port is open `nmap -sT`
+
+`Open TCP Port`(standard tcp handshake) - SYN --> <-- SYN, ACK ACK -->
+
+`Open TCP Port with reset` - SYN --> <-- SYN, ACK ACK --> RST, ACK --> the RST ACK tear down the connection. The RST is a "panic button" that tells the server to immediately close and discard any connection state
+
+`Closed TCP Port` - SYN --> <-- RST, ACK
+
+analysts need to use a generic filter to view the initial anomaly patterns, and then it will be easier to focus on a specific traffic point. The given filter shows the TCP Connect scan patterns in a capture file. - `tcp.flags.syn==1 and tcp.flags.ack==0 and tcp.window_size > 1024`
+
+**SYN Scans**
+
+These dont rely on the 3 way handshake
+
+Usually conducted using `nmap -sS` - this is a stealthier scan than `nmap -sT` it is also quicker and less intrusive.
+
+The handshake is ended before the final ACK packet, this way its stealthier.
+
+`Open TCP Port using -sS` - SYN --> <-- SYN,ACK RST-->
+
+`Close TCP Port using -sS` - SYN --> <-- RST,ACK
+
+The given filter shows the TCP SYN scan patterns in a capture file. - `tcp.flags.syn==1 and tcp.flags.ack==0 and tcp.window_size <= 1024`
+
+**UDP Scan**
+
+ICMP error message for close ports
+
+Doesn't require a handshake process
+
+`Open UDP port` - UDP packet -->
+
+`Closed UDP Port` - UDP packet --> ICMP Type 3, Code 3 message. (Destination unreachable, port unreachable)
+
+The given filter shows the UDP scan patterns in a capture file. - `icmp.type==3 and icmp.code==3`
+
+**35. What is the total number of the "TCP Connect" scans?**
+
+I ran the command I saved for finding all TCP connect scans. `tcp.flags.syn==1 and tcp.flags.ack==0 and tcp.window_size > 1024`
+
+<img width="853" height="736" alt="Screenshot 2025-08-28 121415" src="https://github.com/user-attachments/assets/333031ad-63da-4b8d-95c4-d6756f7184ce" />
+
+**36. Which scan type is used to scan the TCP port 80?**
+
+First I will start by running `tcp.port == 80`
+
+Then once narrowed down I look at the info provided and I can see the normal open port handshake for TCP Connect.
+
+<img width="291" height="98" alt="Screenshot 2025-08-28 122257" src="https://github.com/user-attachments/assets/fc35ed70-b79c-459b-abda-a74c0a21dc77" />
+
+**37. How many "UDP close port" messages are there?**
+
+I ran the search I saved for UDP closed ports - `icmp.type==3 and icmp.code==3`
+
+<img width="845" height="730" alt="Screenshot 2025-08-28 122621" src="https://github.com/user-attachments/assets/185e03ad-47d0-43b9-91ca-3be063f1a29b" />
+
+**38. Which UDP port in the 55-70 port range is open?**
+
+To start I need to find the udp ports in that range, I can do that with this command `udp.port in {55..70}` this searches the udp ports, in the port range described.
+
+<img width="610" height="452" alt="Screenshot 2025-08-28 123006" src="https://github.com/user-attachments/assets/f1b65658-264d-42fc-b790-8e6ebd3b78bb" />
+
+After submitting that query, I can see the ports to the right.
+
+**ARP Poisoning/Spoofing (A.K.A. Man In The Middle Attack)**
+
+ARP protocol, or Address Resolution Protocol (ARP), is the technology responsible for allowing devices to identify themselves on a network. Address Resolution Protocol Poisoning (also known as ARP Spoofing or Man In The Middle (MITM) attack) is a type of attack that involves network jamming/manipulating by sending malicious ARP packets to the default gateway. The ultimate aim is to manipulate the "IP to MAC address table" and sniff the traffic of the target host.
+
+`arp.opcode == 1` - displays all ARP request packets in a captured network trace.
+
+`arp.opcode == 2` - all ARP replies
+
+`arp.dst.hw_mac==00:00:00:00:00:00` - All ARP requests for that MAC 
+
+`arp.duplicate-address-detected or arp.duplicate-address-frame` - This filter flags the initial ARP packet that Wireshark identifies as being part of a duplicate address conflict. Then All subsequent ARP packets that are part of the duplicate IP address conflict.
+
+`((arp) && (arp.opcode == 1)) && (arp.src.hw_mac == target-mac-address)` - find all ARP request packets originating from a specific MAC address.
+
+**39. What is the number of ARP requests crafted by the attacker?**
+
+First command I do is `arp.opcode == 1` to get all ARP request, then I can see that there are a lot of requests to the same address. So I expand the details and note they all have the same MAC. Copy that MAC I will need it later.
+
+Then I run this command to get all request by that MAC. `eth.src == 00:0c:29:e2:18:b4 && arp.opcode ==1`
+
+<img width="861" height="734" alt="Screenshot 2025-08-28 150529" src="https://github.com/user-attachments/assets/4301810e-335b-4cf5-b939-0d2b982b7385" />
+
+**40. What is the number of HTTP packets received by the attacker?**
+
+`eth.dst == 00:0c:29:e2:18:b4 && http`
+
+<img width="788" height="720" alt="Screenshot 2025-08-28 151523" src="https://github.com/user-attachments/assets/ebccb9b6-678e-433e-b90e-a1d2967c040f" />
+
+**41. What is the number of sniffed username&password entries?**
+
+First I want to only see http where data was submitted with a POST. `http.request.method == POST` Then I expanded them and noticed the Hosts were the same.
+
+<img width="340" height="87" alt="Screenshot 2025-08-28 152612" src="https://github.com/user-attachments/assets/79969c9d-8fb5-4dd8-8112-6c91c9e11186" />
+
+I can go through the 10 values and see which ones have usr and psw.
+
+**42. What is the password of the "Client986"**
+
+Since I saw in the last question that the data was captured in the URL Encoder, so I will piggy back off that.
+
+`urlencoded-form matches "client986"`
+
+<img width="500" height="168" alt="Screenshot 2025-08-28 153859" src="https://github.com/user-attachments/assets/4d8e0e47-1324-43a3-87b6-f25e617649a9" />
+
+<img width="576" height="245" alt="Screenshot 2025-08-28 153908" src="https://github.com/user-attachments/assets/15e2f2d0-079c-444c-b090-067b4cc2e407" />
+
+**43. What is the comment provided by the "Client354"?**
+
+Same command as last time, just change the client. `unlencoded-form matches "client354"`
+
+<img width="532" height="146" alt="Screenshot 2025-08-28 154104" src="https://github.com/user-attachments/assets/d07b2f9b-8258-4ee7-a0f0-169a2f2f7125" />
+
+<img width="533" height="216" alt="Screenshot 2025-08-28 154121" src="https://github.com/user-attachments/assets/858ba331-fb46-439c-8cdc-d41abac7ce30" />
+
+
+
+
+
+
+
 
 
