@@ -2,6 +2,8 @@
 
 This will be my process with the Try Hack Me `WireShark: The Basics, WireShark: Packet Operations, and WireShark: Traffic Analysis`
 
+`65 Total questions`
+
 
 **1. Read the "capture file comments". What is the flag?**
 
