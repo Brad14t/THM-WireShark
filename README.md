@@ -577,6 +577,83 @@ I can see after it is decoded I can see the wget to get the file lh.sh from the 
 
 Answer provided in the last answer.
 
+**59. What is the frame number of the "Client Hello" message sent to "accounts.google.com"?**
+
+First thing I did was use the command `(http.request or tls.handshake.type == 1) and !(ssdp)` to get all client hello messages. Then clicked on the first entry and found the server name, then selected that as a filter and added "accounts.google.com" and found the answer. Final command with filter is `tls.handshake.extensions_server_name == "accounts.google.com"`
+
+<img width="826" height="700" alt="Screenshot 2025-09-03 113811" src="https://github.com/user-attachments/assets/6ec48406-7cbe-426c-a5bf-7cac5ea27259" />
+
+**60. Decrypt the traffic with the "KeysLogFile.txt" file. What is the number of HTTP2 packets?**
+
+First I add the key log file `Edit > Preferences > Protocols > TLS`
+
+<img width="1051" height="691" alt="Screenshot 2025-09-03 114252" src="https://github.com/user-attachments/assets/df27eb9b-31b3-47a5-bd9b-c3c7a71343ff" />
+
+<img width="706" height="466" alt="Screenshot 2025-09-03 114408" src="https://github.com/user-attachments/assets/5e7630c4-d28d-4f1d-9fc9-40124105e8f2" />
+
+**61. Go to Frame 322. What is the authority header of the HTTP2 packet? (Enter the address in defanged format.)**
+
+First I go to packet 322, then scroll down to the authority header.
+
+<img width="698" height="70" alt="Screenshot 2025-09-03 114541" src="https://github.com/user-attachments/assets/16effc80-230c-449b-8f15-fbe501417a53" />
+
+Then I go to `File > Export Objects > HTTP` I see 2 packets, I will go to the first.
+
+<img width="752" height="724" alt="Screenshot 2025-09-03 114735" src="https://github.com/user-attachments/assets/d2f9f31d-6f17-496c-b26d-eb86491dc789" />
+
+<img width="1055" height="106" alt="Screenshot 2025-09-03 114816" src="https://github.com/user-attachments/assets/ae51800f-13f8-4015-a069-85cc14ab83f7" />
+
+Then scrolling through I can find the flag.
+
+<img width="843" height="329" alt="Screenshot 2025-09-03 114906" src="https://github.com/user-attachments/assets/2900adc8-02e1-4ec5-9a89-fdee112539f4" />
+
+**62. What is the packet number of the credentials using "HTTP Basic Auth"?**
+
+First I go to `Tools > Credentials`
+
+Then I see the answer at the bottom.
+
+<img width="848" height="472" alt="Screenshot 2025-09-03 130306" src="https://github.com/user-attachments/assets/0f65e888-84df-492c-af5a-555f24bf78e7" />
+
+**63. What is the packet number where "empty password" was submitted?**
+
+First I started by filtering for only PASS packets with this command `ftp.request.command == "PASS"`
+
+Then going through each packet I look for an empty passwork field. Below I will show one with a password and the answer with no password.
+
+<img width="502" height="478" alt="Screenshot 2025-09-03 130740" src="https://github.com/user-attachments/assets/35e3af13-99bc-4fcf-82e2-dddaa836e960" />
+
+<img width="854" height="303" alt="Screenshot 2025-09-03 130748" src="https://github.com/user-attachments/assets/a4eddb59-d302-4710-b75f-1a459baa7443" />
+
+<img width="862" height="344" alt="Screenshot 2025-09-03 130730" src="https://github.com/user-attachments/assets/b091edb6-dec7-4526-a51c-5ee0b33ce613" />
+
+**64. Select packet number 99. Create a rule for "IPFirewall (ipfw)". What is the rule for "denying source IPv4 address"?**
+
+<img width="981" height="706" alt="Screenshot 2025-09-03 131127" src="https://github.com/user-attachments/assets/5887e8cf-2d4e-4107-8e76-d3646da6ce02" />
+
+**65. Select packet number 231. Create "IPFirewall" rules. What is the rule for "allowing destination MAC address"?**
+
+<img width="966" height="714" alt="Screenshot 2025-09-03 131320" src="https://github.com/user-attachments/assets/50cabcf1-60aa-4d8d-945a-12b23931e2ad" />
+
+<img width="1207" height="451" alt="Screenshot 2025-09-03 131356" src="https://github.com/user-attachments/assets/cefb30b0-2113-4d1d-b9a5-15fb53af072f" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
